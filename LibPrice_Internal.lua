@@ -45,17 +45,22 @@ function LibPrice.Price(source_key, item_link)
     local self = LibPrice
     if not self.DISPATCH then
         self.DISPATCH = {
-          [self.MM   ] = self.MMPrice
-        , [self.ATT  ] = self.ATTPrice
-        , [self.FURC ] = self.FurCPrice
-        , [self.TTC  ] = self.TTCPrice
-        , [self.CROWN] = self.CrownPrice
-        , [self.ROLIS] = self.RolisPrice
-        , [self.NPC  ] = self.NPCPrice
+          [self.MM   ] = { self.MMPrice    , self.CanMMPrice    }
+        , [self.ATT  ] = { self.ATTPrice   , self.CanATTPrice   }
+        , [self.FURC ] = { self.FurCPrice  , self.CanFurCPrice  }
+        , [self.TTC  ] = { self.TTCPrice   , self.CanTTCPrice   }
+        , [self.CROWN] = { self.CrownPrice }
+        , [self.ROLIS] = { self.RolisPrice }
+        , [self.NPC  ] = { self.NPCPrice   }
         }
     end
     if not (source_key and self.DISPATCH[source_key]) then
         Error("unknown source key:%s", tostring(source_key))
+        return nil
+    end
+    if          self.DISPATCH[source_key][2]
+        and not self.DISPATCH[source_key][2]() then
+                        -- Requested source not installed/enabled.
         return nil
     end
     local cached = self.GetCachedPrice(source_key, item_link)
@@ -63,7 +68,7 @@ function LibPrice.Price(source_key, item_link)
         -- Info("cached %s %s", item_link, source_key)
         return cached
     end
-    local got = self.DISPATCH[source_key](item_link)
+    local got = self.DISPATCH[source_key][1](item_link)
     if not got then
         -- Info("%s %s returned nil", item_link, source_key)
         return nil
@@ -86,6 +91,10 @@ function LibPrice.Enabled(key, source_list)
 end
 
 -- Master Merchant ------------------------------------------------- Philgo --
+
+function LibPrice.CanMMPrice()
+    return MasterMerchant and true
+end
 
 function LibPrice.MMPrice(item_link)
     local self = LibPrice
@@ -125,6 +134,14 @@ end
 
 -- Arkadius Trade Tools ----------------------- Arkadius, Verbalinkontinenz --
 
+function LibPrice.CanATTPrice()
+    return      ArkadiusTradeTools
+            and ArkadiusTradeTools.Modules
+            and ArkadiusTradeTools.Modules.Sales
+            and ArkadiusTradeTools.Modules.Sales.addMenuItems
+            and true
+end
+
 function LibPrice.ATTPrice(item_link)
     local self = LibPrice
                         -- ATT initializes its sales data at
@@ -158,6 +175,10 @@ end
 
 
 -- Furniture Catalogue ----------------------------------------- Manavortex --
+
+function LibPrice.CanFurCPrice()
+    return FurC and true
+end
 
 function LibPrice.FurCPrice(item_link)
     if not item_link then return nil end
@@ -342,6 +363,10 @@ end
 
 -- Tamriel Trade Centre --------------------------------------------- cyxui --
 
+function LibPrice.CanTTCPrice()
+    return TamrielTradeCentrePrice and true
+end
+
 function LibPrice.TTCPrice(item_link)
     if not TamrielTradeCentrePrice then return nil end
     return TamrielTradeCentrePrice:GetPriceInfo(item_link)
@@ -498,9 +523,11 @@ function LibPrice.ResetCacheIfNecessary()
     local prev_reset_ts = self.cache_reset_ts
     local ago_secs      = GetDiffBetweenTimeStamps(now_ts, prev_reset_ts)
     if self.CACHE_DUR_SECONDS < ago_secs then
-        -- d("|cDD6666cache reset")
+        -- d("|cDD6666cache reset, ago_secs:"..tostring(ago_secs))
         self.cache = {}
         self.cache_reset_ts = now_ts
+    else
+        -- d("|c666666cache retained, ago_secs:"..tostring(ago_secs))
     end
 end
 
@@ -508,6 +535,7 @@ function LibPrice.GetCachedPrice(source_key, item_link)
     LibPrice.ResetCacheIfNecessary()
     if not (  LibPrice.cache
             and LibPrice.cache[source_key]) then
+        -- d("|cDDD666cache miss:"..item_link)
         return nil
     end
     -- d("|c66DD66cache hit:"..item_link)
