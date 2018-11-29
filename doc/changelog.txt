@@ -1,0 +1,5 @@
+[B]4.2.1 2018-11-29[/B]
+[LIST]
+[*] Initial release to support WritWorthy
+[/LIST]
+

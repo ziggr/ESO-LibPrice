@@ -498,6 +498,7 @@ function LibPrice.ResetCacheIfNecessary()
     local prev_reset_ts = self.cache_reset_ts
     local ago_secs      = GetDiffBetweenTimeStamps(now_ts, prev_reset_ts)
     if self.CACHE_DUR_SECONDS < ago_secs then
+        -- d("|cDD6666cache reset")
         self.cache = {}
         self.cache_reset_ts = now_ts
     end
@@ -509,6 +510,7 @@ function LibPrice.GetCachedPrice(source_key, item_link)
             and LibPrice.cache[source_key]) then
         return nil
     end
+    -- d("|c66DD66cache hit:"..item_link)
     return LibPrice.cache[source_key][item_link]
 end
 
