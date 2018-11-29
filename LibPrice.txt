@@ -3,11 +3,11 @@
 ## Author: ziggr
 ## APIVersion: 100025
 ## Description: Return price data from multiple sources: Master Merchant, Arkadius' Trade Tools, Tamriel Trade Centre, and Furniture Catalogue.
-## OptionalDependsOn: MasterMerchant ArkadiusTradeTools TamrielTradeCentre
+## OptionalDependsOn: MasterMerchant ArkadiusTradeTools TamrielTradeCentre FurnitureCatalogue
 
 LibPrice.lua
 LibPrice_Internal.lua
 
                         # Example code. Leave commented out except when
                         # running the example.
-LibPrice_Example.lua
+# LibPrice_Example.lua

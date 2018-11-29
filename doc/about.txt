@@ -42,5 +42,4 @@ function LibPrice_Example.SlashCommand()
 end
 [/highlight]
 
-![example](doc/example.jpg)
-
+[IMG]https://cdn-eso.mmoui.com/preview/pvw7566.jpg[/IMG]
