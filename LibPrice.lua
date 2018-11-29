@@ -8,6 +8,11 @@ LibPrice = LibPrice or {}
 -- Return nil if none found.
 -- No crown or voucher prices returned.
 --
+-- Returns
+--      gold price  (number, often a float)
+--      source_key  (string "mm", "att", "ttc", others... )
+--      field_name  (string "SuggestedPrice", "avgPrice", others... )
+--
 function LibPrice.ItemLinkToPriceGold(item_link, ...)
     local self   = LibPrice
     local field_names = { "SuggestedPrice", "Avg", "avgPrice", "npcVendor"}
@@ -19,9 +24,11 @@ function LibPrice.ItemLinkToPriceGold(item_link, ...)
     for _,source_key in ipairs(self.SourceList()) do
         if self.Enabled(source_key, requested_source_list) then
             local result = self.Price(source_key, item_link)
-            if result then for _,field_name in ipairs(field_names) do
-                if result[field_name] then
-                    return result[field_name]
+            if result then
+                for _,field_name in ipairs(field_names) do
+                    if result[field_name] then
+                        return result[field_name], source_key, field_name
+                    end
                 end
             end
         end

@@ -7,14 +7,16 @@ local EXAMPLE_ITEMS = {
       "|H1:item:54339:308:50:0:0:0:0:0:0:0:0:0:0:0:0:36:1:0:0:0:65536|h|h"
                     -- Crown Tri-Restoration Potion
     , "|H1:item:64710:123:1:0:0:0:0:0:0:0:0:0:0:0:1:36:0:1:0:0:0|h|h"
+                    -- Recipe: Raven Rock Baked Ash Yams
+    , "|H0:item:56970:4:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h"
                     -- Necklace of Willpower
     , "|H1:item:69278:363:50:0:0:0:0:0:0:0:0:0:0:0:257:24:0:1:0:0:0|h|h"
                     -- Trees, Paired Evergreens
     , "|H1:item:120550:3:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h"
                     -- Varla Stone
     , "|H1:item:134465:5:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h"
-                    -- Recipe: Raven Rock Baked Ash Yams
-    , "|H0:item:56970:4:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h"
+                    -- Tempering Alloy
+    , "|H1:item:54173:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h"
                     -- Platinum Necklace, intricate
     , "|H0:item:138797:307:50:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h"
                     -- Jewelry station Naga Shaman
@@ -26,14 +28,53 @@ local EXAMPLE_ITEMS = {
     }
 
 function LibPrice_Example.SlashCommand()
+    local self = LibPrice_Example
+
     for _,item_link in ipairs(EXAMPLE_ITEMS) do
-        local gold_str = "none"
+                        -- Just tell me how much this thing costs.
         local gold   = LibPrice.ItemLinkToPriceGold(item_link)
-        if gold then gold_str = string.format("%dg", gold)
+
+                        -- Okay, I changed my mind. Tell me a little more:
+                        -- where'd you get  this price from?
+                        -- (additional return values from same API)
+        gold, source_key, field_name
+                     = LibPrice.ItemLinkToPriceGold(item_link)
+        local header = self.FormatHeader(item_link, gold, source_key, field_name)
+        d(header)
+
+                        -- Give me all the data you can find, I'll figure out
+                        -- what to do with it later.
         local result = LibPrice.ItemLinkToPriceData(item_link)
-        d(item_link.."   |c999999price:"..gold_str)
         LibPrice_Example.DumpTable(result)
     end
+end
+
+function LibPrice_Example.FormatHeader(item_link, gold, source_key, field_name)
+    local grey     = "|c999999"
+    local white    = "|cFFFFFF"
+
+    if not gold then
+        local msg = string.format(
+             "%s  "..grey.."price:unknown"
+            , item_link )
+        return msg
+    end
+
+    local gold_str = LibPrice_Example.GoldString(gold)
+    local msg = string.format(
+         "%s  "..grey.."price:"..white.."%s "..grey.." from %s.%s"
+        , item_link
+        , gold_str
+        , source_key
+        , field_name
+        )
+    return msg
+end
+
+function LibPrice_Example.GoldString(n)
+    if not n then return tostring(n) end
+    return ZO_LocalizeDecimalNumber(n)
+            .." |t16:16:EsoUI/Art/currency/currency_gold.dds|t"
 end
 
                         -- A recursive table dumper that does a marginally better
