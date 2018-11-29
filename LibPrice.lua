@@ -36,6 +36,14 @@ LibPrice = LibPrice or {}
 --  AmountCount
 --  SuggestedPrice
 --
+-- crown                Crown store: just a few items that Furniture Catalogue
+--                      lacked when Zig wrote this library's precursor in 2017.
+--
+-- rolis                Rolis Hlaalu, MasterCraft Mediator, and Faustina Curio,
+--                      Achievement Mediator.
+--
+-- npc                  Sell to any NPC vendor for gold.
+--
 -- Not getting the price data you expect? Modify your item_link, perhaps
 -- simplify some of those unimportant numbers. What does "simplify" and
 -- "unimportant" mean here? Varies depending on item. Item links are...
@@ -49,24 +57,12 @@ function LibPrice.LinkToPrice(item_link, ... )
                         -- the requested sources. If no source list requested,
                         -- search all sources.
     local requested_source_list = { ... }
-    for _,source_key in ipairs(self.SOURCE_LIST) do
+    for _,source_key in ipairs(self.SourceList()) do
         if self.Enabled(source_key, requested_source_list) then
-        result
-        if (not source_list) or (source)
+            result[source_key] = self.Price(source_key, item_link)
+        end
     end
-
-
-    local mm        = LibPrice.MMPrice(item_link)
-    local att       = LibPrice.ATTPrice(item_link)
-    local furc      = LibPrice.FurCPrice(item_link)
-    local ttc       = LibPrice.TTCPrice(item_link)
-
-    local r = { mm   = mm
-              , att  = att
-              , furc = furc
-              , ttc  = ttc
-              }
-    return r
+    return result
 end
 
                         -- If the caller requested a specific list of  sources,

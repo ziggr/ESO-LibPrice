@@ -12,14 +12,12 @@ LibPrice.FURC  = "furc"
 LibPrice.TTC   = "ttc"
 LibPrice.CROWN = "crown"
 LibPrice.ROLIS = "rolis"
+LibPrice.NPC   = "npc"
 
-LibPrice.SOURCE_LIST = { LibPrice.MM    = "mm"
-                       , LibPrice.ATT   = "att"
-                       , LibPrice.FURC  = "furc"
-                       , LibPrice.TTC   = "ttc"
-                       , LibPrice.CROWN = "crown"
-                       , LibPrice.ROLIS = "rolis"
-                       }
+
+local function Info(msg,...)
+    d("|c999999LibPrice: "..string.format(msg,...))
+end
 
 local function Error(msg,...)
     d("|cFF6666LibPrice: "..string.format(msg,...))
@@ -27,28 +25,49 @@ end
 
 -- Dispatch ------------------------------------------------------------------
 
+function LibPrice.SourceList()
+    if not LibPrice.SOURCE_LIST then
+        LibPrice.SOURCE_LIST = { LibPrice.MM
+                               , LibPrice.ATT
+                               , LibPrice.FURC
+                               , LibPrice.TTC
+                               , LibPrice.CROWN
+                               , LibPrice.ROLIS
+                               , LibPrice.NPC
+                               }
+    end
+    return LibPrice.SOURCE_LIST
+end
+
 function LibPrice.Price(source_key, item_link)
     if not source_key then return nil end
     if not item_link then return nil end
     local self = LibPrice
     if not self.DISPATCH then
         self.DISPATCH = {
-        , [self.MM   ] = self.MMPrice
+          [self.MM   ] = self.MMPrice
         , [self.ATT  ] = self.ATTPrice
         , [self.FURC ] = self.FurCPrice
         , [self.TTC  ] = self.TTCPrice
         , [self.CROWN] = self.CrownPrice
         , [self.ROLIS] = self.RolisPrice
+        , [self.NPC  ] = self.NPCPrice
         }
     end
-    if not source_key and self.DISPATCH[source_key] then
+    if not (source_key and self.DISPATCH[source_key]) then
         Error("unknown source key:%s", tostring(source_key))
         return nil
     end
     local cached = self.GetCachedPrice(source_key, item_link)
-    if cached then return cached end
+    if cached then
+        -- Info("cached %s %s", item_link, source_key)
+        return cached
+    end
     local got = self.DISPATCH[source_key](item_link)
-    if not got then return nil end
+    if not got then
+        -- Info("%s %s returned nil", item_link, source_key)
+        return nil
+    end
     self.SetCachedPrice(source_key, item_link, got)
     return got
 end
@@ -114,9 +133,9 @@ function LibPrice.ATTPrice(item_link)
 
     local day_secs = 24*60*60
     for _,day_ct in ipairs({ self.day_ct_short, self.day_ct_long }) do
-        local att = ArkadiusTradeTools.Modules.Sales:GetAveragePricePerItem(
-                        link, GetTimeStamp() - (day_secs * day_ct))
-        if att and 0 <= att then
+        att = ArkadiusTradeTools.Modules.Sales:GetAveragePricePerItem(
+                        item_link, GetTimeStamp() - (day_secs * day_ct))
+        if att and 0 < att then
             return { avgPrice = att
                    , numDays  = day_ct
                    }
@@ -219,7 +238,7 @@ function LibPrice.From_FurC_Rolis(item_link, recipe_array)
         version_data = seller[recipe_array.version]
         if version_data and version_data[item_id] then break end
     end
-    if not (if version_data and version_data[item_id]) then return nil end
+    if not (version_data and version_data[item_id]) then return nil end
     local ct = version_data[item_id]
     return self.CURRENCY_TYPE_WRIT_VOUCHERS, ct, seller_names[i]
 end
@@ -364,7 +383,7 @@ end
 LibPrice.LINK_ATTUNABLE_BS = "|H1:item:119594:364:50:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:10000:0|h|h"
 LibPrice.LINK_ATTUNABLE_CL = "|H1:item:119821:364:50:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:10000:0|h|h"
 LibPrice.LINK_ATTUNABLE_WW = "|H1:item:119822:364:50:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:10000:0|h|h"
-LibPrice.LINK_ATTUNABLE_JW = "|H1:item:137947:124:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0|h|h"
+LibPrice.LINK_ATTUNABLE_JW = "|H1:item:137947:364:50:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:10000:0|h|h"
 
 
 -- Rolis Hlaalu, Master Crafter Merchant ---------------------------- ziggr --
@@ -372,9 +391,9 @@ LibPrice.LINK_ATTUNABLE_JW = "|H1:item:137947:124:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:
 function LibPrice.RolisPrice(item_link)
     if not item_link then return nil end
     local self = LibPrice
-    if not self.ROLIS then
-        self.ROLIS = {
-        , [self.LINK_ATTUNABLE_BS] = { vouchers =  250 }
+    if not self.ROLIS_PRICE then
+        self.ROLIS_PRICE = {
+          [self.LINK_ATTUNABLE_BS] = { vouchers =  250 }
         , [self.LINK_ATTUNABLE_CL] = { vouchers =  250 }
         , [self.LINK_ATTUNABLE_WW] = { vouchers =  250 }
         , [self.LINK_ATTUNABLE_JW] = { vouchers =  250 }
@@ -382,18 +401,19 @@ function LibPrice.RolisPrice(item_link)
         , ["Transmute Station"   ] = { vouchers = 1250 }
         }
     end
-
     local l = self.Unattune(item_link)
-    local result = self.ROLIS[l.item_link]
+    local result = self.ROLIS_PRICE[l.item_link]
+
                         -- Fallback to EN English name for transmute
     if not result then
         local item_name = GetItemLinkName(item_link)
-        result = self.ROLIS[item_name]
+        result = self.ROLIS_PRICE[item_name]
     end
     return result
 end
 
 function LibPrice.Unattune(item_link)
+    local self = LibPrice
                         -- Remove the "attuning" that makes these
                         -- crafting stations unique, preventing FurC
                         -- and MM from coming up with prices, AND
@@ -439,6 +459,15 @@ function LibPrice.Unattune(item_link)
 end
 
 
+-- NPC Vendor ----------------------------------------------------------------
+
+function LibPrice.NPCPrice(item_link)
+    local o = { GetItemLinkInfo(item_link) }
+    if not (o and o[2] and 0 < o[2]) then return nil end
+    return { npcVendor = o[2] }
+end
+
+
 -- Cache ---------------------------------------------------------------------
 --
 -- Calculating an "average price" from MM and ATT is an O(n) scan through
@@ -464,8 +493,8 @@ end
 
 function LibPrice.GetCachedPrice(source_key, item_link)
     LibPrice.ResetCacheIfNecessary()
-    if not  LibPrice.cache
-        and LibPrice.cache[source_key] then
+    if not (  LibPrice.cache
+            and LibPrice.cache[source_key]) then
         return nil
     end
     return LibPrice.cache[source_key][item_link]

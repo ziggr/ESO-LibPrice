@@ -8,3 +8,6 @@
 LibPrice.lua
 LibPrice_Internal.lua
 
+                        # Example code. Leave commented out except when
+                        # running the example.
+LibPrice_Example.lua
