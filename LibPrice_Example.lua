@@ -27,8 +27,11 @@ local EXAMPLE_ITEMS = {
 
 function LibPrice_Example.SlashCommand()
     for _,item_link in ipairs(EXAMPLE_ITEMS) do
-        local result = LibPrice.LinkToPrice(item_link)
-        d(item_link)
+        local gold_str = "none"
+        local gold   = LibPrice.ItemLinkToPriceGold(item_link)
+        if gold then gold_str = string.format("%dg", gold)
+        local result = LibPrice.ItemLinkToPriceData(item_link)
+        d(item_link.."   |c999999price:"..gold_str)
         LibPrice_Example.DumpTable(result)
     end
 end

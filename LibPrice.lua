@@ -2,6 +2,35 @@ LibPrice = LibPrice or {}
 
 -- Price ---------------------------------------------------------------------
 --
+-- Just tell me how much it costs.
+--
+-- Returns the first "suggested or average price in gold" that it can find.
+-- Return nil if none found.
+-- No crown or voucher prices returned.
+--
+function LibPrice.ItemLinkToPriceGold(item_link, ...)
+    local self   = LibPrice
+    local field_names = { "SuggestedPrice", "Avg", "avgPrice", "npcVendor"}
+
+                        -- If source list requested, then search only
+                        -- the requested sources. If no source list requested,
+                        -- search all sources.
+    local requested_source_list = { ... }
+    for _,source_key in ipairs(self.SourceList()) do
+        if self.Enabled(source_key, requested_source_list) then
+            local result = self.Price(source_key, item_link)
+            if result then for _,field_name in ipairs(field_names) do
+                if result[field_name] then
+                    return result[field_name]
+                end
+            end
+        end
+    end
+    return nil
+end
+
+-- All the data
+--
 -- input:
 --  item_link
 --  optional: list of sources to return:, any of:
@@ -37,12 +66,13 @@ LibPrice = LibPrice or {}
 --  SuggestedPrice
 --
 -- crown                Crown store: just a few items that Furniture Catalogue
---                      lacked when Zig wrote this library's precursor in 2017.
+--  crowns              lacked when Zig wrote this library's precursor in 2017.
 --
 -- rolis                Rolis Hlaalu, MasterCraft Mediator, and Faustina Curio,
---                      Achievement Mediator.
+--  vouchers            Achievement Mediator.
 --
 -- npc                  Sell to any NPC vendor for gold.
+--  npcVendor
 --
 -- Not getting the price data you expect? Modify your item_link, perhaps
 -- simplify some of those unimportant numbers. What does "simplify" and
@@ -50,7 +80,7 @@ LibPrice = LibPrice or {}
 -- enigmatic. See the [UESP page](https://en.uesp.net/wiki/Online:Item_Link)
 -- for _some_ explanation.
 --
-function LibPrice.LinkToPrice(item_link, ... )
+function LibPrice.ItemLinkToPriceData(item_link, ... )
     local self   = LibPrice
     local result = {}
                         -- If source list requested, then search only
@@ -65,15 +95,3 @@ function LibPrice.LinkToPrice(item_link, ... )
     return result
 end
 
-                        -- If the caller requested a specific list of  sources,
-                        -- then return true only if key is in that list.
-                        --
-                        -- If caller did not specify sources, then return true
-                        -- for all keys.
-function LibPrice.Enabled(key, source_list)
-    if #source_list == 0 then return true end
-    for _,k in ipairs(source_list) do
-        if k == key then return true end
-    end
-    return false
-end

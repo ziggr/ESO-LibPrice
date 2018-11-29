@@ -72,6 +72,18 @@ function LibPrice.Price(source_key, item_link)
     return got
 end
 
+                        -- If the caller requested a specific list of  sources,
+                        -- then return true only if key is in that list.
+                        --
+                        -- If caller did not specify sources, then return true
+                        -- for all keys.
+function LibPrice.Enabled(key, source_list)
+    if #source_list == 0 then return true end
+    for _,k in ipairs(source_list) do
+        if k == key then return true end
+    end
+    return false
+end
 
 -- Master Merchant ------------------------------------------------- Philgo --
 
