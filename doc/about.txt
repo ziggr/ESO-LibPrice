@@ -15,6 +15,10 @@ As well as some hard-coded data from other sources:
 [*] Faustina Curio, the Achievement Mediator
 [/list]
 
+[b]GitHub Repo[/b]
+
+[URL="https://github.com/ziggr/ESO-LibPrice"]https://github.com/ziggr/ESO-LibPrice[/URL]
+
 [b]Example Code[/b]
 
 
