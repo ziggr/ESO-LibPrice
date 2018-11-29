@@ -1,10 +1,10 @@
 A library for gathering an item's cost from various add-ons:
 
 [list]
-[*] [Master Merchant](https://www.esoui.com/downloads/info928-MasterMerchant.html), by Philgo68
-[*] [Arkadius' Trade Tools](https://www.esoui.com/downloads/info1752-ArkadiusTradeTools.html), by Arkadius, Verbalinkontinenz
-[*] [Tamriel Trade Centre](https://www.esoui.com/downloads/info1245-TamrielTradeCentre.html), by cyxui
-[*] [Furniture Catalogue](https://www.esoui.com/downloads/info1617-FurnitureCatalogue.html), by manavortex
+[*] [URL="https://www.esoui.com/downloads/info928-MasterMerchant.html"]Master Merchant[/URL], by Philgo68
+[*] [URL="https://www.esoui.com/downloads/info1752-ArkadiusTradeTools.html"]Arkadius' Trade Tools[/URL], by Arkadius, Verbalinkontinenz
+[*] [URL="https://www.esoui.com/downloads/info1245-TamrielTradeCentre.html"]Tamriel Trade Centre[/URL], by cyxui
+[*] [URL="https://www.esoui.com/downloads/info1617-FurnitureCatalogue.html"]Furniture Catalogue[/URL], by manavortex
 [/list]
 
 As well as some hard-coded data from other sources:

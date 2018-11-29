@@ -13,6 +13,10 @@ As well as some hard-coded data from
 - Rolis Hlaalu, the Mastercraft Mediator
 - Faustina Curio, the Achievement Mediator
 
+## GitHub Repo
+
+https://github.com/ziggr/ESO-LibPrice
+
 ## Example Code
 
 ```lua
