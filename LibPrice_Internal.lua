@@ -230,6 +230,18 @@ LibPrice.CURRENCY_TYPE_WRIT_VOUCHERS   = "vouchers"
 LibPrice.CURRENCY_TYPE_ALLIANCE_POINTS = "ap"
 LibPrice.CURRENCY_TYPE_CROWNS          = "crowns"
 
+
+-- Looking for FURC_XXX recipe_array.version values?
+-- -- versioning
+-- FURC_HOMESTEAD            = 2
+-- FURC_MORROWIND            = 3
+-- FURC_REACH                = 4
+-- FURC_CLOCKWORK            = 5
+-- FURC_DRAGONS              = 6
+-- FURC_ALTMER               = 7
+-- FURC_WEREWOLF             = 8
+-- FURC_SLAVES               = 9
+
 -- Dig deep into the data model of Furniture Catalogue,
 -- because there's no public API for this (Furniture Catalogue
 -- was never intended to become a public database).
@@ -287,23 +299,22 @@ function LibPrice.From_FurC_Luxury(item_link, recipe_array)
 end
 
 function LibPrice.From_FurC_AchievementVendor(item_link, recipe_array)
-local self = LibPrice
+    local self = LibPrice
     local item_id      = FurC.GetItemId(item_link)
     local version_data = FurC.AchievementVendors[recipe_array.version]
     if not version_data then return nil end
     local entry = nil
     local notes = nil
-    for zone_name, zone_data in pairs(version_data) do
+    for location_name, zone_data in pairs(version_data) do
         for vendor_name, vendor_data in pairs(zone_data) do
             entry = vendor_data[item_id]
             if entry then
-                notes = vendor_name .. " in " .. zone_name
-                break
+                notes = vendor_name .. " in " .. location_name
+                return self.CURRENCY_TYPE_GOLD, entry.itemPrice, notes
             end
         end
     end
-    if not entry then return nil end
-    return self.CURRENCY_TYPE_GOLD, entry.itemPrice, notes
+    return nil
 end
 
 function LibPrice.From_FurC_Generic(item_link, recipe_array, currency_type)
