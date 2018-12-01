@@ -431,6 +431,8 @@ function LibPrice.CrownPrice(item_link)
         , ["Nuzhimeh the Merchant"                  ] = { crowns = 5000 }
         --["Pirharri the Smuggler"                  ] = ) -- Free for completing Thieves Guild quest lin
         , ["Tythis Andromo, the Banker"             ] = { crowns = 5000 }
+
+        , ["Music Box, Blood and Glory"             ] = { crowns =  800 }
         }
     end
                         -- EN English only for now, need to get proper links
