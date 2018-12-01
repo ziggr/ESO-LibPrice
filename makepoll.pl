@@ -20,6 +20,7 @@ sub dirls($)
 # push @files, dirls('src');
 push @files, 'LibPrice.lua';
 push @files, 'LibPrice_Internal.lua';
+push @files, 'LibPrice_Example.lua';
 print join("\n", @files) . "\n";
 
 @prev_mtime = ();
