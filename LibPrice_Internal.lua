@@ -264,8 +264,8 @@ end
 function LibPrice.From_FurC_Rolis(item_link, recipe_array)
     local self = LibPrice
     local item_id       = FurC.GetItemId(item_link)
-    local seller_list   = { FurC.Rollis, FurC.Faustina }
-    local seller_names  = { "Rollis", "Faustina" }
+    local seller_list   = { FurC.Rolis, FurC.Faustina }
+    local seller_names  = { "Rolis", "Faustina" }
     local version_data  = nil
     for i, seller in ipairs(seller_list) do
         version_data = seller[recipe_array.version]
@@ -292,14 +292,17 @@ local self = LibPrice
     local version_data = FurC.AchievementVendors[recipe_array.version]
     if not version_data then return nil end
     local entry = nil
+    local notes = nil
     for zone_name, zone_data in pairs(version_data) do
         for vendor_name, vendor_data in pairs(zone_data) do
             entry = vendor_data[item_id]
-            if entry then break end
+            if entry then
+                notes = vendor_name .. " in " .. zone_name
+                break
+            end
         end
     end
     if not entry then return nil end
-    local notes = vendor_name .. " in " .. zone_name
     return self.CURRENCY_TYPE_GOLD, entry.itemPrice, notes
 end
 
