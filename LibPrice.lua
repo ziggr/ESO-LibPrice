@@ -63,6 +63,13 @@ end
 --  desc
 --  currency_type
 --  currency_ct
+--  ingredient_list
+--      ingr_ct
+--      ingr_gold_ea
+--      ingr_name
+--      ingr_link
+--      ingr_gold_sorce_key
+--      ingr_gold_field_name
 --
 -- ttc                  Tamriel Trade Centre, by cyxui
 --  Avg                 https://www.esoui.com/downloads/info1245-TamrielTradeCentre.html

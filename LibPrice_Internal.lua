@@ -211,15 +211,16 @@ function LibPrice.FurCPrice(item_link)
         , [FURC_FESTIVAL_DROP] = self.From_FurC_NoPrice            -- 18
         }
     local func = func_table[origin] or self.From_FurC_Misc
-    if func then  currency_type, currency_ct, currency_notes
+    if func then  currency_type, currency_ct, currency_notes, ingredient_list
             = func(item_link, recipe_array)
     end
 
-    local o = { origin        = origin
-              , desc          = desc
-              , currency_type = currency_type
-              , currency_ct   = currency_ct
-              , notes         = currency_notes
+    local o = { origin          = origin
+              , desc            = desc
+              , currency_type   = currency_type
+              , currency_ct     = currency_ct
+              , notes           = currency_notes
+              , ingredient_list = ingredient_list
               }
     return o
 end
@@ -247,30 +248,37 @@ LibPrice.CURRENCY_TYPE_CROWNS          = "crowns"
 -- was never intended to become a public database).
 --
 function LibPrice.From_FurC_Crafting(item_link, recipe_array)
-    return nil
-
-    -- Temporarily disable until I can decide how to handle crafting costs.
-    -- Returning a material list is probably the best way.
-    -- sub-pricing each material... eh. Not sure.
-    --
-    -- local self = LibPrice
-    -- if not recipe_array.blueprint then return nil, nil end
-    -- local total_mat_cost = 0
-
-    -- local notes = "crafting cost"
-    -- local blueprint_link = FurC.GetItemLink(recipe_array.blueprint)
-    -- local ingredient_ct = GetItemLinkRecipeNumIngredients(blueprint_link)
-    -- for ingr_i = 1, ingredient_ct do
-    --     local _, _, ct  = GetItemLinkRecipeIngredientInfo(blueprint_link, ingr_i )
-    --     local ingr_link  = GetItemLinkRecipeIngredientItemLink(blueprint_link, ingr_i )
-    --     local mm = ZZHousingInventory.MMPrice(ingr_link)
-    --     if mm then
-    --         total_mat_cost = total_mat_cost + ct * mm
-    --     else
-    --         notes = "crafting cost, partial"
-    --     end
-    -- end
-    -- return CURRENCY_TYPE_GOLD, total_mat_cost, notes
+    local self = LibPrice
+    if not recipe_array.blueprint then return nil, nil end
+    local total_ingr_gold = 0
+    local ingr_list       = {}
+    local notes           = "Crafting cost"
+    local blueprint_link  = FurC.GetItemLink(recipe_array.blueprint)
+    local ingredient_ct   = GetItemLinkRecipeNumIngredients(blueprint_link)
+    for ingr_i = 1, ingredient_ct do
+        local _, _, ct    = GetItemLinkRecipeIngredientInfo(blueprint_link, ingr_i )
+        local ingr_link   = GetItemLinkRecipeIngredientItemLink(blueprint_link, ingr_i )
+        local ingr_name   = GetItemLinkName(ingr_link)
+                        -- Recurse into each ingredient to get its gold cost.
+                        -- If calling code wants more details about each
+                        -- ingredient's cost, call ItemLinkToPriceData() on
+                        -- each ingredient. I'm not going to do here.
+        local gold, source_key, field_name = self.ItemLinkToPriceGold(ingr_link)
+        local ingr_row = { ingr_ct              = ct
+                         , ingr_name            = ingr_name
+                         , ingr_link            = ingr_link
+                         , ingr_gold_ea         = gold
+                         , ingr_gold_source_key = source_key
+                         , ingr_gold_field_name = field_name
+                         }
+        table.insert(ingr_list, ingr_row)
+        if gold then
+            total_ingr_gold = total_ingr_gold + ct * gold
+        else
+            notes = "Partial crafting cost, missing some ingredient costs."
+        end
+    end
+    return self.CURRENCY_TYPE_GOLD, total_ingr_gold, notes, ingr_list
 end
 
 function LibPrice.From_FurC_Rolis(item_link, recipe_array)
