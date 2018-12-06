@@ -433,6 +433,10 @@ function LibPrice.CrownPrice(item_link)
         , ["Tythis Andromo, the Banker"             ] = { crowns = 5000 }
 
         , ["Music Box, Blood and Glory"             ] = { crowns =  800 }
+
+        , ["Imperial Pillar, Chipped"               ] = { crowns =  410 }
+        , ["Imperial Pillar, Straight"              ] = { crowns =  410 }
+
         }
     end
                         -- EN English only for now, need to get proper links
