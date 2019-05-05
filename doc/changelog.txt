@@ -1,3 +1,8 @@
+[B]5.0.2 2019-05-05[/B]
+[LIST]
+[*] ## IsLibrary: true so that Elsweyr can identify this as a library.
+[/LIST]
+
 [B]5.0.1 2019-05-05[/B]
 [LIST]
 [*] Version and API bump. No code change.
