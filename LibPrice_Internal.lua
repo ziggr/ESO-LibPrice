@@ -378,7 +378,7 @@ function LibPrice.From_FurC_PVP(item_link, recipe_array, currency_type)
     end
     if not entry then return nil end
 
-    local notes = vendor_name .. " in " .. location_name
+    local notes = (vendor_name or "?") .. " in " .. (location_name or "?")
     return self.CURRENCY_TYPE_ALLIANCE_POINTS, entry.itemPrice, notes
 end
 
