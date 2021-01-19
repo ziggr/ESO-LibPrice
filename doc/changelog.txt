@@ -1,3 +1,9 @@
+[B]6.2.1 2021-01-19[/B]
+[LIST]
+[*] Attempt to avoid nil error during FurnitureCatalogue lookup.
+[*] API Bump to Update 28/6.2.1/API 100032/Markarth
+[/LIST]
+
 [B]5.0.2 2019-05-05[/B]
 [LIST]
 [*] ## IsLibrary: true so that Elsweyr can identify this as a library.
