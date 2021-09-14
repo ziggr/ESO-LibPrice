@@ -90,47 +90,21 @@ function LibPrice.Enabled(key, source_list)
     return false
 end
 
--- Master Merchant ------------------------------------------------- Philgo --
+-- Master Merchant ------------------------------------- Philgo, Sharlikran --
 
 function LibPrice.CanMMPrice()
     return MasterMerchant and true
 end
 
 function LibPrice.MMPrice(item_link)
-    local self = LibPrice
+    if not (MasterMerchant and MasterMerchant.isInitialized) then return nil end
     if not item_link then return nil end
-    if not MasterMerchant then return nil end
-
     local mm = MasterMerchant:itemStats(item_link, false)
-    if not mm then return nil end
-    if mm.avgPrice and 0 < mm.avgPrice then
-        return mm
+    if not (mm and mm.avgPrice and 0 < mm.avgPrice) then
+        return nil
     end
-                          -- Normal price lookup came up empty, try an
-                          -- expanded time range.
-    mm = self.MMPriceDated(item_link, self.day_ct_long)
-end
-
-function LibPrice.MMPriceDated(item_link, day_ct)
-                          -- MasterMerchant lacks an API to control time range,
-                          -- it does this internally by polling the state of
-                          -- control/shift-key modifiers (!).
-                          --
-                          -- So instead of using a non-existent API, we
-                          -- monkey-patch MM with our own code that ignores
-                          -- modifier keys and always returns a LOOONG time
-                          -- range.
-                          --
-    local save_tc = MasterMerchant.TimeCheck
-    MasterMerchant.TimeCheck
-      = function(self)
-          return GetTimeStamp() - (86400 * day_ct), day_ct
-        end
-    mm = MasterMerchant:itemStats(item_link, false)
-    MasterMerchant.TimeCheck = save_tc
     return mm
 end
-
 
 -- Arkadius Trade Tools ----------------------- Arkadius, Verbalinkontinenz --
 
