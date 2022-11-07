@@ -14,26 +14,26 @@ LibPrice = LibPrice or {}
 --      field_name  (string "SuggestedPrice", "avgPrice", others... )
 --
 function LibPrice.ItemLinkToPriceGold(item_link, ...)
-    local self   = LibPrice
-    local field_names = { "SuggestedPrice", "Avg", "avgPrice", "npcVendor"}
+  local self = LibPrice
+  local field_names = { "SuggestedPrice", "Avg", "avgPrice", "npcVendor" }
 
-                        -- If source list requested, then search only
-                        -- the requested sources. If no source list requested,
-                        -- search all sources.
-    local requested_source_list = { ... }
-    for _,source_key in ipairs(self.SourceList()) do
-        if self.Enabled(source_key, requested_source_list) then
-            local result = self.Price(source_key, item_link)
-            if result then
-                for _,field_name in ipairs(field_names) do
-                    if result[field_name] then
-                        return result[field_name], source_key, field_name
-                    end
-                end
-            end
+  -- If source list requested, then search only
+  -- the requested sources. If no source list requested,
+  -- search all sources.
+  local requested_source_list = { ... }
+  for _, source_key in ipairs(self.SourceList()) do
+    if self.Enabled(source_key, requested_source_list) then
+      local result = self.Price(source_key, item_link)
+      if result then
+        for _, field_name in ipairs(field_names) do
+          if result[field_name] then
+            return result[field_name], source_key, field_name
+          end
         end
+      end
     end
-    return nil
+  end
+  return nil
 end
 
 -- All the data
@@ -94,18 +94,18 @@ end
 -- enigmatic. See the [UESP page](https://en.uesp.net/wiki/Online:Item_Link)
 -- for _some_ explanation.
 --
-function LibPrice.ItemLinkToPriceData(item_link, ... )
-    local self   = LibPrice
-    local result = {}
-                        -- If source list requested, then search only
-                        -- the requested sources. If no source list requested,
-                        -- search all sources.
-    local requested_source_list = { ... }
-    for _,source_key in ipairs(self.SourceList()) do
-        if self.Enabled(source_key, requested_source_list) then
-            result[source_key] = self.Price(source_key, item_link)
-        end
+function LibPrice.ItemLinkToPriceData(item_link, ...)
+  local self = LibPrice
+  local result = {}
+  -- If source list requested, then search only
+  -- the requested sources. If no source list requested,
+  -- search all sources.
+  local requested_source_list = { ... }
+  for _, source_key in ipairs(self.SourceList()) do
+    if self.Enabled(source_key, requested_source_list) then
+      result[source_key] = self.Price(source_key, item_link)
     end
-    return result
+  end
+  return result
 end
 
