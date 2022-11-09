@@ -1,6 +1,6 @@
-## Title: LibPrice 7.1.2
-## Version: 7.1.2
-## AddOnVersion: 070102
+## Title: LibPrice 7.2.0
+## Version: 7.2.0
+## AddOnVersion: 070200
 ## APIVersion: 101036
 ## IsLibrary: true
 ## Description: Return price data from multiple sources: Master Merchant, Arkadius' Trade Tools, Tamriel Trade Centre, and Furniture Catalogue.

@@ -1,9 +1,8 @@
 LibPrice = LibPrice or {}
 
--- How long of a date range to pass to Master Merchant
--- and Arkadius Trade Tools.
-LibPrice.day_ct_short = 3      -- ATT only
-LibPrice.day_ct_long = 90      -- MM and ATT
+-- How long of a date range to pass to Arkadius Trade Tools
+LibPrice.day_ct_short = 3
+LibPrice.day_ct_long = 90
 
 -- source keys
 LibPrice.MM = "mm"
@@ -38,6 +37,9 @@ function LibPrice.SourceList()
   return LibPrice.SOURCE_LIST
 end
 
+-- /script LibPrice.Price(LibPrice.MM, "|H1:item:97256:363:50:0:0:0:0:0:0:0:0:0:0:0:1:6:0:1:0:10000:0|h|h")
+-- /script d(LibGuildStore_Internal.GetOrCreateIndexFromLink("|H1:item:97256:363:50:0:0:0:0:0:0:0:0:0:0:0:1:6:0:1:0:10000:0|h|h"))
+-- /script d(LibPrice.GetCachedPrice(LibPrice.MM, "|H1:item:97256:363:50:0:0:0:0:0:0:0:0:0:0:0:1:6:0:1:0:10000:0|h|h"))
 function LibPrice.Price(source_key, item_link)
   if not source_key then return nil end
   if not item_link then return nil end
@@ -93,6 +95,33 @@ end
 
 function LibPrice.CanMMPrice()
   return MasterMerchant and true
+end
+
+function LibPrice.MMGetItemIndex(item_link)
+  local noIndex = "0:0:0:0:0"
+  if not (MasterMerchant and MasterMerchant.isInitialized) then return noIndex end
+  return LibGuildStore_Internal.GetOrCreateIndexFromLink(item_link)
+end
+
+function LibPrice.MMGetTimeRange()
+  local noRange = 0
+  if not (MasterMerchant and MasterMerchant.isInitialized) then return noRange end
+  local range = MasterMerchant.systemSavedVariables.defaultDays
+  if IsControlKeyDown() and IsShiftKeyDown() then
+    range = MasterMerchant.systemSavedVariables.ctrlShiftDays
+  elseif IsControlKeyDown() then
+    range = MasterMerchant.systemSavedVariables.ctrlDays
+  elseif IsShiftKeyDown() then
+    range = MasterMerchant.systemSavedVariables.shiftDays
+  end
+
+  -- MM_TIME_RANGE_NONE is not used in LibPrice
+  if range == GetString(MM_RANGE_ALL) then daysRange = MM_TIME_RANGE_ALL end
+  if range == GetString(MM_RANGE_FOCUS1) then daysRange = MM_TIME_RANGE_FOCUS1 end
+  if range == GetString(MM_RANGE_FOCUS2) then daysRange = MM_TIME_RANGE_FOCUS2 end
+  if range == GetString(MM_RANGE_FOCUS3) then daysRange = MM_TIME_RANGE_FOCUS3 end
+
+  return daysRange
 end
 
 function LibPrice.MMPrice(item_link)
@@ -514,6 +543,13 @@ LibPrice.cache = nil
 LibPrice.cache_reset_ts = nil
 LibPrice.CACHE_DUR_SECONDS = 5 * 60
 
+function LibPrice.ResetMasterMerchantCache(source_key, itemId, itemIndex)
+  local itemInfo = LibPrice.cache[source_key] and LibPrice.cache[source_key][itemId] and LibPrice.cache[source_key][itemId][itemIndex]
+  if itemInfo then
+    LibPrice.cache[source_key][itemId][itemIndex] = nil
+  end
+end
+
 -- Allow cached data to expire after a few minutes.
 function LibPrice.ResetCacheIfNecessary()
   local self = LibPrice
@@ -523,27 +559,69 @@ function LibPrice.ResetCacheIfNecessary()
   local ago_secs = GetDiffBetweenTimeStamps(now_ts, prev_reset_ts)
   if self.CACHE_DUR_SECONDS < ago_secs then
     -- d("|cDD6666cache reset, ago_secs:"..tostring(ago_secs))
-    self.cache = {}
+    -- Do not reset TTC, updates on reloadui
+    -- Do not reset MM, because of ResetMasterMerchantCache()
+    if self.cache and self.cache[LibPrice.ATT] then self.cache[LibPrice.ATT] = {} end
+    if self.cache and self.cache[LibPrice.FURC] then self.cache[LibPrice.FURC] = {} end
+    if self.cache and self.cache[LibPrice.CROWN] then self.cache[LibPrice.CROWN] = {} end
+    if self.cache and self.cache[LibPrice.ROLIS] then self.cache[LibPrice.ROLIS] = {} end
+    if self.cache and self.cache[LibPrice.NPC] then self.cache[LibPrice.NPC] = {} end
     self.cache_reset_ts = now_ts
   else
     -- d("|c666666cache retained, ago_secs:"..tostring(ago_secs))
   end
 end
 
+-- /script d(LibPrice.GetCachedPrice(LibPrice.MM, "|H1:item:97256:363:50:0:0:0:0:0:0:0:0:0:0:0:1:6:0:1:0:10000:0|h|h"))
 function LibPrice.GetCachedPrice(source_key, item_link)
+  local itemId = 0
+  local itemIndex = "0:0:0:0:0"
+  local daysRange = 0 -- I would use the MM value but if MM is not installed
+
   LibPrice.ResetCacheIfNecessary()
-  if not (LibPrice.cache
-    and LibPrice.cache[source_key]) then
-    -- d("|cDDD666cache miss:"..item_link)
+  if not (LibPrice.cache and LibPrice.cache[source_key]) then
+    -- d("|cDDD666source_key cache miss:"..item_link)
     return nil
   end
+
+  if source_key == LibPrice.MM then
+    itemId = GetItemLinkItemId(item_link)
+    itemIndex = LibPrice.MMGetItemIndex(item_link)
+    daysRange = LibPrice.MMGetTimeRange()
+    if not (LibPrice.cache and LibPrice.cache[source_key][itemId]) then
+      -- d("|cDDD666itemId cache miss:"..item_link)
+      return nil
+    end
+    if not (LibPrice.cache and LibPrice.cache[source_key][itemId][itemIndex]) then
+      -- d("|cDDD666itemIndex cache miss:"..item_link)
+      return nil
+    end
+  end
   -- d("|c66DD66cache hit:"..item_link)
-  return LibPrice.cache[source_key][item_link]
+
+  if source_key == LibPrice.MM then
+    return LibPrice.cache[source_key][itemId][itemIndex][daysRange]
+  else
+    return LibPrice.cache[source_key][item_link]
+  end
 end
 
 function LibPrice.SetCachedPrice(source_key, item_link, value)
+  local itemId = 0
+  local itemIndex = "0:0:0:0:0"
+  local daysRange = 0 -- I would use the MM value but if MM is not installed
+
   LibPrice.cache = LibPrice.cache or {}
   LibPrice.cache[source_key] = LibPrice.cache[source_key] or {}
-  LibPrice.cache[source_key][item_link] = value
+  if source_key == LibPrice.MM then
+    itemId = GetItemLinkItemId(item_link)
+    itemIndex = LibPrice.MMGetItemIndex(item_link)
+    daysRange = LibPrice.MMGetTimeRange()
+    LibPrice.cache[source_key][itemId] = LibPrice.cache[source_key][itemId] or {}
+    LibPrice.cache[source_key][itemId][itemIndex] = LibPrice.cache[source_key][itemId][itemIndex] or {}
+    LibPrice.cache[source_key][itemId][itemIndex][daysRange] = value
+  else
+    LibPrice.cache[source_key][item_link] = value
+  end
 end
 
