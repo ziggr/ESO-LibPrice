@@ -15,7 +15,7 @@ LibPrice = LibPrice or {}
 --
 function LibPrice.ItemLinkToPriceGold(item_link, ...)
   local self = LibPrice
-  local field_names = { "SuggestedPrice", "Avg", "avgPrice", "npcVendor" }
+  local field_names = { "SuggestedPrice", "Avg", "avgPrice", "bonanzaPrice", "npcVendor" }
 
   -- If source list requested, then search only
   -- the requested sources. If no source list requested,
