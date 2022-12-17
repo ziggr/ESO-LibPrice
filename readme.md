@@ -6,6 +6,7 @@ A library for gathering an item's cost from various add-ons:
 - [Arkadius' Trade Tools](https://www.esoui.com/downloads/info1752-ArkadiusTradeTools.html), by Arkadius, Verbalinkontinenz
 - [Tamriel Trade Centre](https://www.esoui.com/downloads/info1245-TamrielTradeCentre.html), by cyxui
 - [Furniture Catalogue](https://www.esoui.com/downloads/info1617-FurnitureCatalogue.html), by manavortex
+- [Nirn Auction House](https://www.esoui.com/downloads/info1768-NirnAuctionHouse.html), by Elo
 
 As well as some hard-coded data from
 

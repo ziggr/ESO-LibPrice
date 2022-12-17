@@ -15,7 +15,7 @@ LibPrice = LibPrice or {}
 --
 function LibPrice.ItemLinkToPriceGold(item_link, ...)
   local self = LibPrice
-  local field_names = { "SuggestedPrice", "Avg", "avgPrice", "bonanzaPrice", "npcVendor" }
+  local field_names = { "SuggestedPrice", "Avg", "avgPrice", "bonanzaPrice", "price", "npcVendor" }
 
   -- If source list requested, then search only
   -- the requested sources. If no source list requested,
@@ -78,6 +78,9 @@ end
 --  EntryCount          fields mean.
 --  AmountCount
 --  SuggestedPrice
+--
+-- nah                  Nirn Auction House, by Elo
+--  price               https://www.esoui.com/downloads/info1768-NirnAuctionHouse.html
 --
 -- crown                Crown store: just a few items that Furniture Catalogue
 --  crowns              lacked when Zig wrote this library's precursor in 2017.

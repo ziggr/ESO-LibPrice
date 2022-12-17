@@ -5,7 +5,7 @@
 ## IsLibrary: true
 ## Description: Return price data from multiple sources: Master Merchant, Arkadius' Trade Tools, Tamriel Trade Centre, and Furniture Catalogue.
 ## Author: ziggr
-## OptionalDependsOn: ArkadiusTradeTools TamrielTradeCentre FurnitureCatalogue
+## OptionalDependsOn: ArkadiusTradeTools TamrielTradeCentre FurnitureCatalogue NirnAuctionHouse
 
 LibPrice.lua
 LibPrice_Internal.lua

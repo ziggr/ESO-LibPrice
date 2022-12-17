@@ -9,6 +9,7 @@ LibPrice.MM = "mm"
 LibPrice.ATT = "att"
 LibPrice.FURC = "furc"
 LibPrice.TTC = "ttc"
+LibPrice.NAH   = "nah"
 LibPrice.CROWN = "crown"
 LibPrice.ROLIS = "rolis"
 LibPrice.NPC = "npc"
@@ -32,6 +33,7 @@ function LibPrice.SourceList()
     , LibPrice.CROWN
     , LibPrice.ROLIS
     , LibPrice.NPC
+    , LibPrice.NAH
     }
   end
   return LibPrice.SOURCE_LIST
@@ -47,6 +49,7 @@ function LibPrice.Price(source_key, item_link)
     , [self.ATT] = { self.ATTPrice, self.CanATTPrice }
     , [self.FURC] = { self.FurCPrice, self.CanFurCPrice }
     , [self.TTC] = { self.TTCPrice, self.CanTTCPrice }
+    , [self.NAH  ] = { self.NAHPrice, self.CanNAHPrice   }
     , [self.CROWN] = { self.CrownPrice }
     , [self.ROLIS] = { self.RolisPrice }
     , [self.NPC] = { self.NPCPrice }
@@ -364,6 +367,23 @@ function LibPrice.TTCPrice(item_link)
   return TamrielTradeCentrePrice:GetPriceInfo(item_link)
 end
 
+-- Nirn Auction House ---------------------------------------------- otac0n --
+
+function LibPrice.CanNAHPrice()
+    return NirnAuctionHouse and true
+end
+
+function LibPrice.NAHPrice(item_link)
+    if not NirnAuctionHouse then return nil end
+    local itemId = NirnAuctionHouse:GetItemID(item_link)
+    local quality = GetItemLinkQuality(item_link)
+    local powerOrRating = GetItemLinkWeaponPower(item_link) + GetItemLinkArmorRating(item_link, false)
+    local level = GetItemLinkRequiredLevel(item_link)
+    local cp = GetItemLinkRequiredChampionPoints(item_link)
+    local entry = NirnAuctionHouse.PriceTable[itemId..":"..quality..":"..powerOrRating..":"..level..":"..cp]
+    if not entry or entry.price == nil then return nil end
+    return { price = entry.price }
+end
 
 -- Crown Store ------------------------------------------------------ ziggr --
 --
